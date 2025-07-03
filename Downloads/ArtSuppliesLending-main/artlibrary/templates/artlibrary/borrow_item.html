@@ -1,0 +1,134 @@
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrow Item</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <style>
+        :root {
+            --bs-primary: #8B5A2B;
+            --bs-primary-rgb: 139, 90, 43;
+            --bs-secondary: #A67C52;
+            --bs-secondary-rgb: 166, 124, 82;
+            --bs-dark: #5D4037;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .bg-brown {
+            background-color: #8B5A2B !important;
+        }
+        
+        .text-brown {
+            color: #8B5A2B !important;
+        }
+        
+        .btn-brown {
+            background-color: #8B5A2B;
+            border-color: #8B5A2B;
+            color: white;
+        }
+        
+        .btn-outline-brown {
+            border-color: #8B5A2B;
+            color: #8B5A2B;
+        }
+        
+        .btn-outline-brown:hover {
+            background-color: #8B5A2B;
+            color: white;
+        }
+        
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body class="bg-light">
+
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-brown">
+        <div class="container">
+            <a class="navbar-brand" href="#">Borrow Item</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Home</a></li>
+                    {% if request.user.user_role == "librarian" %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'add_item' %}">Add Item</a></li>
+                    {% endif %}
+                    {% if request.user.user_role != "anonymous_user" %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'add_collection' %}">Add Collection</a></li>
+                    {% endif %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'collections' %}">Collections</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'borrowed_items' %}">Borrowed Items</a></li>
+                    {% if request.user.user_role == "librarian" %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'view_requests' user.id %}">Requests</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'manage_users' %}">Manage Users</a></li>
+                    {% endif %}
+                    {% if request.user.user_role != "anonymous_user" %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4 col-sm-6">
+                    <img src="{{ item.image.url }}"class="img-fluid" alt="{{ item.name }}">
+                            <h5 class="card-title text-brown">{{ item.name }}</h5>
+                            <span class="badge bg-success">Available</span>
+                        </div>
+                        <h6>Quantity</h6> <p>{{ item.quantity }}</p>
+                        <p class="card-text"><small class="text-muted">Pickup at: {{ item.pickup_location }}</small></p>
+                        <p class="card-text"><small class="text-muted">Use policy: {{ item.use_policy}}</small></p>
+                        <p class="card-text"><small class="text-muted">Description: {{ item.description}}</small></p>
+                        <p class="card-text"><small class="text-muted">Use type: {{ item.item_type}}</small></p>
+        </div>
+    </div>
+    <div class="container mt-4">
+        <h2>Borrow Item</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{borrow_form.as_p }}
+            <button type="submit" name="submit_request" class="btn btn-success">Submit borrow request</button>
+        </form>
+    </div>
+</body>
+
+<!-- Footer -->
+<footer class="py-3 bg-dark text-white mt-auto bg-brown">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <p class="mb-0">&copy; 2025 Art Supplies. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="#" class="text-white text-decoration-none me-3" style="font-size: 10px;">This is a class project</a>
+                <a href="#" class="text-white text-decoration-none me-3" style="font-size: 10px;">This system is not monitored</a>
+                <a href="#" class="text-white text-decoration-none" style="font-size: 10px;">Not real information should be submitted</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

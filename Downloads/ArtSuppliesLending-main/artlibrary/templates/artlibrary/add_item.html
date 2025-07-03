@@ -1,0 +1,162 @@
+{% load django_bootstrap5 %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Item</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    <style>
+        :root {
+            --bs-primary: #8B5A2B;
+            --bs-primary-rgb: 139, 90, 43;
+            --bs-secondary: #A67C52;
+            --bs-secondary-rgb: 166, 124, 82;
+            --bs-dark: #5D4037;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .main-content {
+            flex: 1;
+        }
+        
+        .bg-brown {
+            background-color: #8B5A2B !important;
+        }
+        
+        .text-brown {
+            color: #8B5A2B !important;
+        }
+        
+        .btn-brown {
+            background-color: #8B5A2B;
+            border-color: #8B5A2B;
+            color: white;
+        }
+        
+        .btn-outline-brown {
+            border-color: #8B5A2B;
+            color: #8B5A2B;
+        }
+        
+        .btn-outline-brown:hover {
+            background-color: #8B5A2B;
+            color: white;
+        }
+        
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<nav class="navbar navbar-expand-lg navbar-dark bg-brown">
+    <div class="container">
+        <a class="navbar-brand" href="#">Add Item</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Home</a></li>
+                {% if request.user.user_role == "librarian" %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'add_item' %}">Add Item</a></li>
+                {% endif %}
+                {% if request.user.user_role != "anonymous_user" %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'add_collection' %}">Add Collection</a></li>
+                {% endif %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'collections' %}">Collections</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'borrowed_items' %}">Borrowed Items</a></li>
+                {% if request.user.user_role == "librarian" %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'view_requests' user.id %}">Requests</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'manage_users' %}">Manage Users</a></li>
+                {% endif %}
+                {% if request.user.user_role != "anonymous_user" %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Profile</a></li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link btn btn-danger btn-sm text-white ms-2" href="{% url 'logout' %}">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    </nav>
+<body class="bg-light">
+    <div class="container mt-4">
+        <h2>Add Item</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ add_item_form.as_p }}
+            
+            <div class="mb-3" id="public-collections-section">
+                <label class="form-label">Select Public Collections</label>
+                <div>
+                    {% for collection in collections %}
+                        {% if collection.is_public %}
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="public_collections" value="{{ collection.id }}" id="public_{{ collection.id }}">
+                                <label class="form-check-label" for="public_{{ collection.id }}">
+                                    {{ collection.title }}
+                                </label>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="mb-3">
+                <label for="private_collection" class="form-label">Select Private Collection (Only One)</label>
+                <select id="private_collection" name="private_collection" class="form-select">
+                    <option value="">None</option>
+                    {% for collection in collections %}
+                        {% if not collection.is_public %}
+                            <option value="{{ collection.id }}">{{ collection.title }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <button type="submit" name="add_item" class="btn btn-success">Add Item</button>
+        </form>
+    </div>
+    
+    <script>
+        function publicCollections(){
+            var publicCollections=document.getElementById('public-collections-section');
+            var privateCollectionSelect=document.getElementById('private_collection');
+            if(privateCollectionSelect.value!==""){
+                publicCollections.style.display="none";
+            }
+            else{
+                publicCollections.style.display='block';
+            }
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+            const collectionSelect = document.getElementById("collections");
+            collectionSelect.addEventListener("change", function () {
+                let selectedOptions = Array.from(collectionSelect.selectedOptions);
+                let privateCollections = selectedOptions.filter(opt => opt.dataset.public === "False");
+                
+                if (privateCollections.length > 1) {
+                    alert("You can only select one private collection.");
+                    privateCollections.forEach(opt => opt.selected = false);
+                }
+            });
+        });
+
+        document.addEventListener("DOMContentLoaded", function () {
+    const privateCollectionSelect = document.getElementById("private_collection");
+    publicCollections();
+    privateCollectionSelect.addEventListener("change",publicCollections);
+});
+
+    </script>
+</body>
+</html>
