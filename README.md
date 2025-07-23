@@ -22,4 +22,5 @@ Tech Stack:
 - Google OAuth for user login (Patrons & Librarians)
 
 Roles and Contribution
+
 I served as the Requirements Manager, responsible for leading the feature definition process and maintaining the GitHub issue tracker. I also actively contributed to the project’s backend and frontend development, including user flows, models, and system logic.
